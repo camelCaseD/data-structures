@@ -11,9 +11,9 @@ HashTable.prototype.insert = function(k, v){
     var tuple = new Tuple(k, v);
     this._storage.set(i, [tuple]);
   } else {
-    for(var j = 0; j < bucket.length; j++) {
+    for (var j = 0; j < bucket.length; j++) {
       var tuple = bucket[j];
-      if(tuple.key() === k) {
+      if (tuple.key() === k) {
         tuple.set(k,v);
         break;
       } else {
@@ -30,12 +30,13 @@ HashTable.prototype.insert = function(k, v){
 HashTable.prototype.retrieve = function(k){
   var i = getIndexBelowMaxForKey(k, this._limit);
   var bucket = this._storage.get(i);
-  for(var j = 0; j < bucket.length; j++) {
+  for (var j = 0; j < bucket.length; j++) {
     var tuple = bucket[j];
-    if(tuple.key() === k){
+    if (tuple.key() === k){
       return tuple.value();
     }
   }
+  
   return null;
 };
 
