@@ -19,6 +19,10 @@ HashTable.prototype.insert = function(k, v){
         bucket.push(tuple);
         this._storage.set(i,bucket);
         break;
+      } else {
+        var tuple = new Tuple(k,v);
+        bucket.push(tuple);
+        this._storage.set(i, bucket);
       }
     }
   }
@@ -34,7 +38,7 @@ HashTable.prototype.retrieve = function(k){
       return tuple.value();
     }
   }
-  return false;
+  return null;
 };
 
 HashTable.prototype.remove = function(k){
@@ -45,7 +49,7 @@ HashTable.prototype.remove = function(k){
     var tuple = bucket[j];
 
     if (tuple.key() === k) {
-      delete bucket[j];
+      bucket.splice(j, 1)
       this._storage.set(i, bucket);
     }
   }
