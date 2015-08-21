@@ -15,7 +15,7 @@ HashTable.prototype.insert = function(k, v){
       var tuple = bucket[j];
       if(tuple.key() === k) {
         tuple.set(k,v);
-        this._storage.set(i,bucket);
+        break;
       } else {
         var tuple = new Tuple(k,v);
         bucket.push(tuple);
