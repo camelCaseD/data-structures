@@ -6,11 +6,108 @@ var HashTable = function(){
 };
 
 HashTable.prototype.insert = function(k, v){
-  console.log(this._limit)
-  if(!(this.numberOfTuples - 1 < Math.floor(0.75 * this.oldLimit))) {
-    this._checkLimit();
+  this._checkLimitInsert();
+
+  this._runInsertion(k,v);
+
+};
+
+HashTable.prototype.retrieve = function(k){
+  var i = getIndexBelowMaxForKey(k, this._limit);
+  var bucket = this._storage.get(i);
+
+  if (bucket !== undefined) {
+    for (var j = 0; j < bucket.length; j++) {
+      var tuple = bucket[j];
+      if (tuple.key() === k){
+        return tuple.value();
+      }
+    }
   }
 
+  return null;
+};
+
+HashTable.prototype.remove = function(k){
+  if(!(this.numberOfTuples - 1 < Math.floor(0.25 * this.oldLimit))) {
+    this._checkLimitRemove();
+  }
+
+  var i = getIndexBelowMaxForKey(k, this._limit);
+  var bucket = this._storage.get(i);
+
+  for (var j = 0; j < bucket.length; j++) {
+    var tuple = bucket[j];
+
+    if (tuple.key() === k) {
+      bucket.splice(j, 1)
+      this._storage.set(i, bucket);
+      this.numberOfTuples--;
+    }
+  }
+};
+
+HashTable.prototype._checkLimitInsert = function() {
+  if (this.numberOfTuples >= Math.floor(this._limit * 0.75)) {
+    this._grow();
+  }
+};
+
+HashTable.prototype._checkLimitRemove = function() {
+  if (this.numberOfTuples >= Math.floor(this._limit * 0.25)) {
+    if (this._limit > 8) {
+      this._shrink();
+    }
+  }
+};
+
+HashTable.prototype._grow = function() {
+  this.oldLimit = this._limit;
+
+  this._limit = this._limit * 2;
+
+  var oldStorage = this._storage;
+
+  this._storage = LimitedArray(this._limit);
+
+  var self = this;
+  oldStorage.each(function(bucket) {
+    if (bucket !== undefined) {
+      for (var i = 0; i < bucket.length; i++) {
+        var tuple = bucket[i];
+
+        self._runInsertion(tuple.key(), tuple.value());
+      }
+
+      this.oldLimit = this._limit;
+    }
+  });
+};
+
+HashTable.prototype._shrink = function() {
+  this.oldLimit = this._limit;
+
+  this._limit = Math.floor(this._limit / 2);
+
+  var oldStorage = this._storage;
+
+  this._storage = LimitedArray(this._limit);
+
+  var self = this;
+  oldStorage.each(function(bucket) {
+    if (bucket !== undefined) {
+      for (var i = 0; i < bucket.length; i++) {
+        var tuple = bucket[i];
+
+        self._runInsertion(tuple.key(), tuple.value());
+      }
+
+      this.oldLimit = this._limit;
+    }
+  });
+};
+
+HashTable.prototype._runInsertion = function(k, v) {
   var i = getIndexBelowMaxForKey(k, this._limit);
   var bucket = this._storage.get(i);
 
@@ -33,98 +130,6 @@ HashTable.prototype.insert = function(k, v){
       }
     }
   }
-
-};
-
-HashTable.prototype.retrieve = function(k){
-  this._checkLimit();
-
-  var i = getIndexBelowMaxForKey(k, this._limit);
-  var bucket = this._storage.get(i);
-
-  if (bucket !== undefined) {
-    for (var j = 0; j < bucket.length; j++) {
-      var tuple = bucket[j];
-      if (tuple.key() === k){
-        return tuple.value();
-      }
-    }
-  }
-
-  return null;
-};
-
-HashTable.prototype.remove = function(k){
-  this._checkLimit();
-
-  var i = getIndexBelowMaxForKey(k, this._limit);
-  var bucket = this._storage.get(i);
-
-  for (var j = 0; j < bucket.length; j++) {
-    var tuple = bucket[j];
-
-    if (tuple.key() === k) {
-      bucket.splice(j, 1)
-      this._storage.set(i, bucket);
-      this.numberOfTuples--;
-    }
-  }
-};
-
-HashTable.prototype._checkLimit = function() {
-  if (this.numberOfTuples >= Math.floor(this._limit * 0.75)) {
-    this._grow();
-  } else if (this.numberOfTuples < Math.floor(this._limit * 0.25)) {
-    if (this._limit > 8) {
-      this._shrink();
-    }
-  }
-};
-
-HashTable.prototype._grow = function() {
-  this.oldLimit = this._limit;
-
-  this._limit = this._limit * 2;
-
-  var oldStorage = this._storage;
-
-  this._storage = LimitedArray(this._limit);
-
-  var self = this;
-  oldStorage.each(function(bucket) {
-    if (bucket !== undefined) {
-      for (var i = 0; i < bucket.length; i++) {
-        var tuple = bucket[i];
-
-        self.insert(tuple.key(), tuple.value());
-      }
-
-      this.oldLimit = this._limit;
-    }
-  });
-};
-
-HashTable.prototype._shrink = function() {
-  this.oldLimit = this._limit;
-
-  this._limit = this._limit / 2;
-
-  var oldStorage = this._storage;
-
-  this._storage = LimitedArray(this._limit);
-
-  var self = this;
-  oldStorage.each(function(bucket) {
-    if (bucket !== undefined) {
-      for (var i = 0; i < bucket.length; i++) {
-        var tuple = bucket[i];
-
-        self.insert(tuple.key(), tuple.value());
-      }
-
-      this.oldLimit = this._limit;
-    }
-  });
 };
 
 var Tuple = function(k,v) {
