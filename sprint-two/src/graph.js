@@ -4,6 +4,7 @@
 
 // Instantiate a new graph
 var Graph = function(){
+  this.storage = [];
 };
 
 // ------------------------
@@ -40,6 +41,12 @@ Graph.prototype.removeEdge = function(fromNode, toNode){
 // Pass in a callback which will be executed on each node of the graph.
 Graph.prototype.forEachNode = function(cb){
 };
+
+var GraphNode = function(value) {
+  this.value = value;
+  this.to = [];
+  this.from = [];
+} 
 
 /*
  * Complexity: What is the time complexity of the above functions?
