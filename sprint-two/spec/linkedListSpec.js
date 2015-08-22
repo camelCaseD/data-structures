@@ -51,5 +51,35 @@ describe('linkedList', function() {
     expect(linkedList.contains(4)).to.equal(false);
   });
 
+  describe('doubly', function() {
+    beforeEach(function() {
+      doubly = DoublyLinkedList();
+    });
+
+    it('shourld have methods named "addToHead"  and "removeTail"', function() {
+      expect(doubly.addToHead).to.be.a("function");
+      expect(doubly.removeTail).to.be.a("function");
+    });
+
+    it('should have a property called "previous"', function() {
+      doubly.addToHead(1);
+      expect(doubly.tail).to.have.property("previous");
+    });
+
+    it('should be linked to another node', function() {
+      doubly.addToHead(2);
+      doubly.addToHead(3);
+      expect(doubly.tail.previous.value).to.equal(3);
+    });
+
+    it('should be able to de-link from another node', function() {
+      doubly.addToHead(3);
+      doubly.addToHead(4);
+      expect(doubly.tail.previous.value).to.equal(4);
+      expect(doubly.removeTail()).to.equal(3);
+      expect(doubly.tail.previous).to.equal(null);
+    });
+  });
+
   // add more tests here to test the functionality of linkedList
 });
